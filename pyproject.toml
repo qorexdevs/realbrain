@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "realbrain"
+version = "0.1.0"
+description = "Local operating-memory layer for AI agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "RealBrain Contributors" }]
+dependencies = ["pydantic>=2.0"]
+
+[project.optional-dependencies]
+dev = []
