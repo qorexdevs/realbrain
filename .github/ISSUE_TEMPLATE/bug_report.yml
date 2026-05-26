@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a reproducible RealBrain bug
+title: "Bug: "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Do not paste secrets, private vault contents, tokens, or production configs.
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Use fake data only.
+      render: bash
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Python and OS
+      placeholder: "Python 3.11, macOS/Linux/Windows"
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Integration surface
+      options:
+        - Core library
+        - Tool layer
+        - OpenClaw
+        - MCP
+        - CLI/custom host
+        - Other

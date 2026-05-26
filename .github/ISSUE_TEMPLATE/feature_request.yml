@@ -1,0 +1,30 @@
+name: Feature request
+description: Propose an improvement or integration
+title: "Feature: "
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What agent-memory workflow does this improve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Safety boundaries
+      options:
+        - label: This keeps RealBrain local-first by default.
+        - label: This does not add autonomous external actions.
+        - label: This does not require storing secrets or raw private transcripts.

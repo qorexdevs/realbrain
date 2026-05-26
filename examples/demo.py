@@ -1,4 +1,7 @@
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from realbrain_server.tools import RealBrainToolContext, activate, dream, extract_events, record_event, search_memory
 

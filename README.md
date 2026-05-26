@@ -1,5 +1,7 @@
 # RealBrain
 
+[![Tests](https://img.shields.io/badge/tests-unittest-green)](#development-checks) [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml) [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE) [![Local-first](https://img.shields.io/badge/local--first-memory-purple)](docs/SECURITY_AND_PRIVACY.md)
+
 > Local operating-memory layer for AI agents: events, evidence-linked graph memory, beliefs, global workspace, dream/consolidation loops, and safe markdown/Obsidian integration.
 
 RealBrain is a small, local-first memory/control-plane toolkit for agent runtimes such as **OpenClaw**, MCP-compatible assistants, custom FastAPI bridges, CLI agents, or internal multi-agent systems.
@@ -7,6 +9,37 @@ RealBrain is a small, local-first memory/control-plane toolkit for agent runtime
 It is designed for people who want their agents to remember useful things **without turning every chat transcript into untrusted memory slop**.
 
 RealBrain is **not consciousness**, **not autonomous authority**, and **not a replacement for your source-of-truth knowledge base**. It is an engineering layer that records events, builds evidence-linked memory structures, surfaces active context, and proposes consolidation while keeping durable truth human-readable and auditable.
+
+---
+
+## Start here
+
+```bash
+git clone https://github.com/ericfly02/realbrain.git
+cd realbrain
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+python -m unittest discover -s tests
+python examples/demo.py
+```
+
+Then expose `realbrain_server.tools` from your host runtime, MCP server, or OpenClaw plugin. See [docs/LAUNCH_PLAYBOOK.md](docs/LAUNCH_PLAYBOOK.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Best first use cases
+
+- Give an OpenClaw assistant evidence-linked project memory without storing every raw chat.
+- Wrap the tool layer in an MCP server for local desktop assistants.
+- Keep an Obsidian/markdown vault human-readable while SQLite acts as an operational index.
+- Run bounded dream/consolidation passes that produce review queues, not autonomous actions.
+
+## What it is not
+
+RealBrain is not an AGI brain, consciousness claim, hosted SaaS memory service, vector database replacement, permission system, or external-action automation engine. Host runtimes still own identity, approvals, secrets, networking, and high-impact actions.
+
+## Contribute
+
+RealBrain is early and intentionally small. Good first contributions include docs fixes, adapter examples, MCP/OpenClaw wrappers, benchmark fixtures, demo screenshots/GIFs, packaging polish, and safety tests. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and look for `good-first-issue` on GitHub.
 
 ---
 
@@ -380,7 +413,7 @@ Used to tell the agent: “these are the currently relevant memories/synapses/qu
 ### Local development install
 
 ```bash
-git clone https://github.com/YOUR_ORG/realbrain.git
+git clone https://github.com/ericfly02/realbrain.git
 cd realbrain
 python3 -m venv .venv
 source .venv/bin/activate
@@ -813,6 +846,20 @@ Say instead:
 - auditable graph memory
 
 ---
+
+## Development checks
+
+Before opening a pull request, run:
+
+```bash
+python -m unittest discover -s tests
+python -m compileall realbrain realbrain_server examples tests
+python examples/demo.py
+grep -RInE 'api[_-]?key|secret|token|password|BEGIN (RSA|OPENSSH|PRIVATE)|/home/|\.openclaw|spesion|SPESION|NEXUS|Eric' . \
+  --exclude-dir=.git --exclude-dir=__pycache__ --exclude='*.pyc'
+```
+
+Expected: tests pass, compile succeeds, the demo runs with fake local data, and scans show no committed secrets or personal vault data.
 
 ## License
 
