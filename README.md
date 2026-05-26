@@ -39,7 +39,7 @@ RealBrain is not an AGI brain, consciousness claim, hosted SaaS memory service, 
 
 ## Contribute
 
-RealBrain is early and intentionally small. Good first contributions include docs fixes, adapter examples, MCP/OpenClaw wrappers, benchmark fixtures, demo screenshots/GIFs, packaging polish, and safety tests. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and look for `good-first-issue` on GitHub.
+RealBrain is early and intentionally small. Good first contributions include docs fixes, adapter examples, MCP/OpenClaw wrappers, benchmark fixtures, demo screenshots/GIFs, packaging polish, and safety tests. Start with [CONTRIBUTING.md](CONTRIBUTING.md), browse [starter issues](https://github.com/ericfly02/realbrain/issues?q=is%3Aissue%20is%3Aopen%20label%3Agood-first-issue), or open a [GitHub Discussion](https://github.com/ericfly02/realbrain/discussions) with integration ideas. Maintainers can use [docs/COMMUNITY_OUTREACH.md](docs/COMMUNITY_OUTREACH.md) for an ethical launch cadence.
 
 ---
 

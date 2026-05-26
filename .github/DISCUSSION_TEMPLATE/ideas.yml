@@ -1,0 +1,27 @@
+title: "Idea: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for integration ideas, memory-model questions, examples, and roadmap discussion. Please use fake data only.
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What should RealBrain support or explain better?
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What agent/runtime workflow does this help?
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundaries
+      options:
+        - label: This keeps RealBrain local-first by default.
+        - label: This does not require storing secrets or raw private transcripts.
+        - label: This keeps external actions owned by the host runtime.
