@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, TypeVar
+from typing import Iterable, Iterator, TypeVar
 
 from pydantic import BaseModel
 
@@ -27,15 +28,24 @@ class RealBrainStore:
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.init_schema()
 
-    def connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def connect(self) -> Iterator[sqlite3.Connection]:
+        # sqlite3's own context manager commits but never closes, so on Windows
+        # the file stays locked and temp-dir cleanup fails. Close it ourselves.
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
-        return conn
+        try:
+            yield conn
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
     def init_schema(self) -> None:
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute("PRAGMA foreign_keys = ON")
+        with self.connect() as conn:
             conn.executescript(
                 """
                 CREATE TABLE IF NOT EXISTS brain_events (
@@ -266,7 +276,7 @@ class RealBrainStore:
         synapse = self.get_synapse(synapse_id)
         if synapse is None:
             return None
-        synapse.weight = max(0.0, min(1.0, synapse.weight + delta))
+        synapse.weight = round(max(0.0, min(1.0, synapse.weight + delta)), 6)
         synapse.reinforcement_count += 1
         synapse.last_reinforced_at = utc_now()
         if reason:

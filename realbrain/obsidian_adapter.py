@@ -27,7 +27,7 @@ class ObsidianAdapter:
         return target
 
     def relative(self, path: str | Path) -> str:
-        return str(Path(path).resolve().relative_to(self.brain_root))
+        return Path(path).resolve().relative_to(self.brain_root).as_posix()
 
     def read_markdown(self, relative_path: str, max_chars: int | None = None) -> dict:
         target = self.resolve(relative_path)
