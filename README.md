@@ -1,6 +1,6 @@
 # RealBrain
 
-[![Tests](https://img.shields.io/badge/tests-unittest-green)](#development-checks) [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml) [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE) [![Local-first](https://img.shields.io/badge/local--first-memory-purple)](docs/SECURITY_AND_PRIVACY.md)
+[![Tests](https://github.com/qorexdevs/realbrain/actions/workflows/ci.yml/badge.svg)](https://github.com/qorexdevs/realbrain/actions/workflows/ci.yml) [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml) [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE) [![Local-first](https://img.shields.io/badge/local--first-memory-purple)](docs/SECURITY_AND_PRIVACY.md)
 
 > Local operating-memory layer for AI agents: events, evidence-linked graph memory, beliefs, global workspace, dream/consolidation loops, and safe markdown/Obsidian integration.
 
