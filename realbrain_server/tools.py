@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -17,7 +17,7 @@ from realbrain.store import RealBrainStore
 
 
 def _as_of() -> str:
-    return datetime.now(UTC).isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
 def response(result: dict, *, warnings: list[str] | None = None, evidence_refs: list[str] | None = None) -> dict:

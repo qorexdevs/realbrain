@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -148,7 +148,7 @@ class EventExtractor:
                     source_quality=0.65,
                     evidence_refs=evidence_refs,
                     owner_domain=str(event.metadata.get("domain")) if event.metadata.get("domain") else None,
-                    review_after=datetime.now(UTC) + timedelta(days=14),
+                    review_after=datetime.now(timezone.utc) + timedelta(days=14),
                     created_from_event=event.id,
                 )
             )
@@ -190,7 +190,7 @@ class SynapseHygiene:
         stale_after_days = max(1, min(int(stale_after_days), 3650))
         max_decay = max(0.0, min(float(max_decay), 0.25))
         limit = max(1, min(int(limit), 500))
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         cutoff = now - timedelta(days=stale_after_days)
         reviewed = []
         changed = []
@@ -241,7 +241,7 @@ class ContradictionReview:
         }
 
     def _write_report(self, synapses: list[Synapse], beliefs: list[Belief]) -> str:
-        day = datetime.now(UTC).date().isoformat()
+        day = datetime.now(timezone.utc).date().isoformat()
         path = f"brain/reviews/contradictions/{day}.md"
         lines = [
             f"# RealBrain Contradiction Review — {day}",
@@ -322,7 +322,7 @@ class CuriosityQueue:
         lines = [
             "# RealBrain Curiosity Queue — Current",
             "",
-            f"- updated: {datetime.now(UTC).isoformat()}",
+            f"- updated: {datetime.now(timezone.utc).isoformat()}",
             "- authority: questions only; no autonomous external action",
             "",
             "## Questions",
@@ -382,12 +382,12 @@ class NightlyConsolidator:
         }
 
     def _write_summary(self, extraction: dict, hygiene: dict, contradiction: dict, curiosity: dict, dream: dict, *, dry_run: bool) -> str:
-        day = datetime.now(UTC).date().isoformat()
+        day = datetime.now(timezone.utc).date().isoformat()
         path = f"brain/sleep-reports/nightly-consolidation-{day}.md"
         lines = [
             f"# RealBrain Nightly Consolidation — {day}",
             "",
-            f"- completed_at: {datetime.now(UTC).isoformat()}",
+            f"- completed_at: {datetime.now(timezone.utc).isoformat()}",
             f"- dry_run: {dry_run}",
             "- authority: internal memory hygiene only; no external or high-impact actions",
             "",

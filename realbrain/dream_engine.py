@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from itertools import combinations
 from pathlib import Path
 
@@ -45,7 +45,7 @@ class DreamEngine:
         # separate validated consolidation/review step approves them.
         dream.accepted_changes = []
         dream.rejected_changes = []
-        dream.completed_at = datetime.now(UTC)
+        dream.completed_at = datetime.now(timezone.utc)
         relative_path = self._write_report(dream, events=events, neurons=neurons, synapses=synapses, focus_area=focus_area)
         dream.summary_path = relative_path
         self.store.add_dream_run(dream)
@@ -98,7 +98,7 @@ class DreamEngine:
         return hypotheses
 
     def _write_report(self, dream: DreamRun, *, events: list, neurons: list, synapses: list, focus_area: str | None) -> str:
-        day = datetime.now(UTC).date().isoformat()
+        day = datetime.now(timezone.utc).date().isoformat()
         folder = "brain/sleep-reports" if dream.mode == "nrem_consolidation" else "brain/dreams"
         path = f"{folder}/{day}.md"
         existing = ""

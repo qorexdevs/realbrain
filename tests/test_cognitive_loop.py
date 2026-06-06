@@ -1,6 +1,6 @@
 from pathlib import Path
 import tempfile
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from realbrain.cognitive_loop import CuriosityQueue, EventExtractor, NightlyConsolidator, SynapseHygiene
 from realbrain.models import Belief, BrainEvent, Neuron, Synapse
@@ -27,7 +27,7 @@ def test_synapse_hygiene_decays_stale_edges():
         store = RealBrainStore(Path(tmp) / "brain.sqlite")
         a = store.add_neuron(Neuron(type="concept", title="Old A"))
         b = store.add_neuron(Neuron(type="concept", title="Old B"))
-        synapse = store.add_synapse(Synapse(source_neuron_id=a.id, target_neuron_id=b.id, relation_type="related_to", weight=0.25, created_at=datetime.now(UTC) - timedelta(days=90), decay_rate=0.1))
+        synapse = store.add_synapse(Synapse(source_neuron_id=a.id, target_neuron_id=b.id, relation_type="related_to", weight=0.25, created_at=datetime.now(timezone.utc) - timedelta(days=90), decay_rate=0.1))
         result = SynapseHygiene(store).run(stale_after_days=30, max_decay=0.1)
         assert len(result["changed"]) == 1
         updated = store.get_synapse(synapse.id)

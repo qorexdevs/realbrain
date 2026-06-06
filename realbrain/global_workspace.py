@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from .models import GlobalWorkspaceItem
@@ -70,7 +70,7 @@ class GlobalWorkspace:
             why_active="Manual/API activation; related neurons and synapses surfaced for agent attention.",
             related_neurons=[n.id for n in activated],
             recommended_agent="orchestrator",
-            expires_at=datetime.now(UTC) + timedelta(hours=6),
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=6),
             actionability="suggest",
         )
         markdown = self.render([item], synapses=[s.model_dump(mode="json") for s in synapses])
@@ -87,7 +87,7 @@ class GlobalWorkspace:
         lines = [
             "# RealBrain Global Workspace — Current",
             "",
-            f"- updated: {datetime.now(UTC).isoformat()}",
+            f"- updated: {datetime.now(timezone.utc).isoformat()}",
             "- authority: attention/suggestion only; no high-impact action authority",
             "",
             "## Active items",
