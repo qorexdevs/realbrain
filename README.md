@@ -26,6 +26,32 @@ python examples/demo.py
 
 Then expose `realbrain_server.tools` from your host runtime, MCP server, or OpenClaw plugin. See [docs/LAUNCH_PLAYBOOK.md](docs/LAUNCH_PLAYBOOK.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## What the demo does
+
+`examples/demo.py` runs the whole memory loop end to end against a throwaway `./demo_vault`. It takes a couple of seconds and needs no API keys or external services. Five calls, in order:
+
+1. `record_event(...)` writes one `BrainEvent` (a conversation line) and returns its id plus the SQLite path it landed in.
+2. `extract_events(...)` turns that raw event into structured memory. From a single line it derives an `episode` neuron, a couple of `concept` neurons, the `observed_with` synapses between them, and one belief held at `inference` level, not promoted to a fact:
+
+   ```text
+   neurons:  episode "RealBrain should help an agent remember..." + concepts "RealBrain", "Dream Engine"
+   synapses: episode --observed_with--> each concept (weight 0.55)
+   belief:   status=inference, confidence=0.45, review_after=+14d
+   warning:  Extracted claims are inference-level beliefs; they are not promoted to facts automatically.
+   ```
+
+3. `search_memory("evidence backed decisions")` returns the matching neurons. Without the optional `gbrain` binary it falls back to the Obsidian/markdown index and says so in `warnings`.
+4. `activate("RealBrain")` pushes a `GlobalWorkspace` item (salience 0.75, `actionability=suggest`) and surfaces the related neurons and synapses an agent should attend to before answering.
+5. `dream(mode="rem_generation", focus_area="RealBrain")` runs a bounded consolidation pass. It proposes a hypothesis, writes a dated summary under `brain/dreams/`, and stamps safety flags so nothing leaks into facts:
+
+   ```text
+   generated_hypotheses: ["...may reveal a useful cross-domain opportunity; validate with evidence before promotion."]
+   safety_flags: hypotheses_not_facts, no_external_actions, human_review_required_for_high_impact_items
+   warning: Dream output is hypothesis/suggestion only, not fact.
+   ```
+
+One chat line goes in, and you get evidence-linked memory out, with claims kept at the right confidence level and dreams kept out of your facts.
+
 ## Best first use cases
 
 - Give an OpenClaw assistant evidence-linked project memory without storing every raw chat.
