@@ -36,3 +36,12 @@ def test_store_persists_core_records():
         assert store.get_belief(belief.id).status == "fact"
         dream = store.add_dream_run(DreamRun(mode="rem_generation", generated_hypotheses=["Try a small workbench."]))
         assert store.get_dream_run(dream.id).mode == "rem_generation"
+
+
+def test_find_neurons_underscore_is_literal():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        hit = store.add_neuron(Neuron(type="concept", title="alpha_beta gate", importance=5))
+        store.add_neuron(Neuron(type="concept", title="alphaXbeta gate", importance=5))
+        found = store.find_neurons(query="alpha_beta")
+        assert [n.id for n in found] == [hit.id]

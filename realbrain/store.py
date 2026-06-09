@@ -209,8 +209,12 @@ class RealBrainStore:
             if terms:
                 token_clauses = []
                 for term in terms:
-                    token_clauses.append("(LOWER(title) LIKE ? OR LOWER(payload) LIKE ?)")
-                    like = f"%{term}%"
+                    token_clauses.append(
+                        "(LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(payload) LIKE ? ESCAPE '\\')"
+                    )
+                    # the tokenizer keeps '_', which LIKE treats as a wildcard, so a
+                    # query like "foo_bar" would also match "fooXbar" without this
+                    like = "%" + term.replace("_", "\\_") + "%"
                     params.extend([like, like])
                 clauses.append("(" + " OR ".join(token_clauses) + ")")
         if type:
