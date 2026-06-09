@@ -41,3 +41,18 @@ def test_global_workspace_activation_surfaces_synapses():
         current = obsidian.read_markdown("brain/global-workspace/current.md")["content"]
         assert "Activation request: Research Agent" in current
         assert "Related synapses" in current
+
+
+def test_global_workspace_dedupes_shared_synapse():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        store = RealBrainStore(root / "realbrain.sqlite")
+        obsidian = ObsidianAdapter(root / "vault")
+        a = store.add_neuron(Neuron(type="project", title="RealBrain Core", importance=9))
+        b = store.add_neuron(Neuron(type="concept", title="RealBrain Engine", importance=8))
+        syn = store.add_synapse(Synapse(source_neuron_id=a.id, target_neuron_id=b.id, relation_type="depends_on", weight=0.7))
+        # query matches both neurons, so the one synapse is surfaced from each end
+        result = GlobalWorkspace(store, obsidian).activate("RealBrain", depth=1, budget=5)
+        assert len(result["activated_neurons"]) == 2
+        assert len(result["synapses"]) == 1
+        assert result["synapses"][0]["id"] == syn.id
