@@ -207,7 +207,11 @@ class RealBrainStore:
         where_params: list[object] = []
         score_sql = "0"
         if query:
-            terms = [term for term in re.findall(r"[a-z0-9_\-]+", query.lower()) if len(term) >= 3][:12]
+            # dedup terms so a repeated word ("memory memory") can't inflate the
+            # match score above a neuron that actually hits two distinct words
+            terms = list(dict.fromkeys(
+                term for term in re.findall(r"[a-z0-9_\-]+", query.lower()) if len(term) >= 3
+            ))[:12]
             if terms:
                 cond = "(LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(payload) LIKE ? ESCAPE '\\')"
                 score_parts = []

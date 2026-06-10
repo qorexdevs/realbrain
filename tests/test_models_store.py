@@ -56,3 +56,13 @@ def test_find_neurons_ranks_by_terms_matched():
         both = store.add_neuron(Neuron(type="concept", title="vector graph store", importance=2))
         found = store.find_neurons(query="vector graph")
         assert found[0].id == both.id
+
+
+def test_find_neurons_dedups_repeated_terms():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        # a repeated word must not outweigh a neuron that hits two distinct words
+        store.add_neuron(Neuron(type="concept", title="memory cache", importance=9))
+        both = store.add_neuron(Neuron(type="concept", title="memory graph index", importance=2))
+        found = store.find_neurons(query="memory memory graph")
+        assert found[0].id == both.id
