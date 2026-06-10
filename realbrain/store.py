@@ -202,29 +202,34 @@ class RealBrainStore:
 
     def find_neurons(self, *, query: str | None = None, type: str | None = None, limit: int = 100) -> list[Neuron]:
         limit = max(1, min(limit, 1000))
-        clauses: list[str] = []
-        params: list[object] = []
+        select_params: list[object] = []
+        where_clauses: list[str] = []
+        where_params: list[object] = []
+        score_sql = "0"
         if query:
             terms = [term for term in re.findall(r"[a-z0-9_\-]+", query.lower()) if len(term) >= 3][:12]
             if terms:
-                token_clauses = []
+                cond = "(LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(payload) LIKE ? ESCAPE '\\')"
+                score_parts = []
                 for term in terms:
-                    token_clauses.append(
-                        "(LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(payload) LIKE ? ESCAPE '\\')"
-                    )
                     # the tokenizer keeps '_', which LIKE treats as a wildcard, so a
                     # query like "foo_bar" would also match "fooXbar" without this
                     like = "%" + term.replace("_", "\\_") + "%"
-                    params.extend([like, like])
-                clauses.append("(" + " OR ".join(token_clauses) + ")")
+                    score_parts.append(f"(CASE WHEN {cond} THEN 1 ELSE 0 END)")
+                    select_params.extend([like, like])
+                    where_params.extend([like, like])
+                # rank by how many query terms a neuron hits, so a row matching every
+                # token outranks one that only matched a single word
+                score_sql = " + ".join(score_parts)
+                where_clauses.append("(" + " OR ".join([cond] * len(terms)) + ")")
         if type:
-            clauses.append("type = ?")
-            params.append(type)
-        sql = "SELECT payload FROM neurons"
-        if clauses:
-            sql += " WHERE " + " AND ".join(clauses)
-        sql += " ORDER BY importance DESC, title ASC LIMIT ?"
-        params.append(limit)
+            where_clauses.append("type = ?")
+            where_params.append(type)
+        sql = f"SELECT payload, ({score_sql}) AS score FROM neurons"
+        if where_clauses:
+            sql += " WHERE " + " AND ".join(where_clauses)
+        sql += " ORDER BY score DESC, importance DESC, title ASC LIMIT ?"
+        params = select_params + where_params + [limit]
         with self.connect() as conn:
             rows = conn.execute(sql, params).fetchall()
         return [Neuron.model_validate_json(row["payload"]) for row in rows]

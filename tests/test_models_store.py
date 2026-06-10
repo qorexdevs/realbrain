@@ -45,3 +45,14 @@ def test_find_neurons_underscore_is_literal():
         store.add_neuron(Neuron(type="concept", title="alphaXbeta gate", importance=5))
         found = store.find_neurons(query="alpha_beta")
         assert [n.id for n in found] == [hit.id]
+
+
+def test_find_neurons_ranks_by_terms_matched():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        # one_term has higher importance but only hits a single query word, so the
+        # row matching both words must still come first
+        store.add_neuron(Neuron(type="concept", title="graph database", importance=9))
+        both = store.add_neuron(Neuron(type="concept", title="vector graph store", importance=2))
+        found = store.find_neurons(query="vector graph")
+        assert found[0].id == both.id
