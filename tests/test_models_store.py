@@ -50,6 +50,17 @@ def test_list_dream_runs_filters_and_orders():
         assert len(store.list_dream_runs()) == 3
 
 
+def test_list_beliefs_due_for_review():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        overdue = store.add_belief(Belief(claim_text="Recheck the cache TTL.", review_after=datetime(2026, 1, 1, tzinfo=timezone.utc)))
+        soon = store.add_belief(Belief(claim_text="Revisit the rate limit.", review_after=datetime(2026, 3, 1, tzinfo=timezone.utc)))
+        store.add_belief(Belief(claim_text="No review scheduled.", review_after=datetime(2026, 12, 1, tzinfo=timezone.utc)))
+        store.add_belief(Belief(claim_text="Never expires."))
+        due = store.list_beliefs(due_before=datetime(2026, 6, 1, tzinfo=timezone.utc))
+        assert [b.id for b in due] == [overdue.id, soon.id]
+
+
 def test_find_neurons_underscore_is_literal():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")

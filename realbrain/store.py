@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 import re
 import sqlite3
 from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
-from typing import Iterable, Iterator, TypeVar
+from typing import Iterator, TypeVar
 
 from pydantic import BaseModel
 
@@ -320,7 +320,14 @@ class RealBrainStore:
             row = conn.execute("SELECT payload FROM beliefs WHERE id = ?", (belief_id,)).fetchone()
         return self._load(Belief, row)
 
-    def list_beliefs(self, *, status: str | None = None, owner_domain: str | None = None, limit: int = 100) -> list[Belief]:
+    def list_beliefs(
+        self,
+        *,
+        status: str | None = None,
+        owner_domain: str | None = None,
+        due_before: datetime | None = None,
+        limit: int = 100,
+    ) -> list[Belief]:
         limit = max(1, min(limit, 1000))
         clauses: list[str] = []
         params: list[object] = []
@@ -330,10 +337,14 @@ class RealBrainStore:
         if owner_domain:
             clauses.append("owner_domain = ?")
             params.append(owner_domain)
+        if due_before is not None:
+            # surface beliefs whose review is already due, oldest first
+            clauses.append("review_after IS NOT NULL AND review_after <= ?")
+            params.append(due_before.isoformat())
         sql = "SELECT payload FROM beliefs"
         if clauses:
             sql += " WHERE " + " AND ".join(clauses)
-        sql += " ORDER BY confidence ASC LIMIT ?"
+        sql += " ORDER BY review_after ASC LIMIT ?" if due_before is not None else " ORDER BY confidence ASC LIMIT ?"
         params.append(limit)
         with self.connect() as conn:
             rows = conn.execute(sql, params).fetchall()
