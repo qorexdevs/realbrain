@@ -362,3 +362,16 @@ class RealBrainStore:
         with self.connect() as conn:
             row = conn.execute("SELECT payload FROM dream_runs WHERE id = ?", (dream_run_id,)).fetchone()
         return self._load(DreamRun, row)
+
+    def list_dream_runs(self, *, mode: str | None = None, limit: int = 100) -> list[DreamRun]:
+        limit = max(1, min(limit, 1000))
+        sql = "SELECT payload FROM dream_runs"
+        params: list[object] = []
+        if mode:
+            sql += " WHERE mode = ?"
+            params.append(mode)
+        sql += " ORDER BY started_at DESC LIMIT ?"
+        params.append(limit)
+        with self.connect() as conn:
+            rows = conn.execute(sql, params).fetchall()
+        return [DreamRun.model_validate_json(row["payload"]) for row in rows]

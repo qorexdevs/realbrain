@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from pathlib import Path
 import tempfile
 
@@ -36,6 +37,17 @@ def test_store_persists_core_records():
         assert store.get_belief(belief.id).status == "fact"
         dream = store.add_dream_run(DreamRun(mode="rem_generation", generated_hypotheses=["Try a small workbench."]))
         assert store.get_dream_run(dream.id).mode == "rem_generation"
+
+
+def test_list_dream_runs_filters_and_orders():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        store.add_dream_run(DreamRun(mode="nrem_consolidation", started_at=datetime(2026, 1, 1, tzinfo=timezone.utc)))
+        newer = store.add_dream_run(DreamRun(mode="rem_generation", started_at=datetime(2026, 2, 1, tzinfo=timezone.utc)))
+        older = store.add_dream_run(DreamRun(mode="rem_generation", started_at=datetime(2026, 1, 15, tzinfo=timezone.utc)))
+        rem = store.list_dream_runs(mode="rem_generation")
+        assert [d.id for d in rem] == [newer.id, older.id]
+        assert len(store.list_dream_runs()) == 3
 
 
 def test_find_neurons_underscore_is_literal():
