@@ -98,3 +98,12 @@ def test_find_neurons_min_importance_filters():
         big = store.add_neuron(Neuron(type="concept", title="key idea", importance=9))
         found = store.find_neurons(min_importance=5)
         assert [n.id for n in found] == [big.id]
+
+
+def test_find_neurons_state_filters():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        store.add_neuron(Neuron(type="concept", title="old draft", state="archived"))
+        live = store.add_neuron(Neuron(type="concept", title="live note", state="active"))
+        found = store.find_neurons(state="active")
+        assert [n.id for n in found] == [live.id]
