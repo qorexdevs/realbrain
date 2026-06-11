@@ -89,3 +89,12 @@ def test_find_neurons_dedups_repeated_terms():
         both = store.add_neuron(Neuron(type="concept", title="memory graph index", importance=2))
         found = store.find_neurons(query="memory memory graph")
         assert found[0].id == both.id
+
+
+def test_find_neurons_min_importance_filters():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        store.add_neuron(Neuron(type="concept", title="minor note", importance=2))
+        big = store.add_neuron(Neuron(type="concept", title="key idea", importance=9))
+        found = store.find_neurons(min_importance=5)
+        assert [n.id for n in found] == [big.id]

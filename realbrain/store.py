@@ -200,7 +200,8 @@ class RealBrainStore:
             row = conn.execute("SELECT payload FROM neurons WHERE id = ?", (neuron_id,)).fetchone()
         return self._load(Neuron, row)
 
-    def find_neurons(self, *, query: str | None = None, type: str | None = None, limit: int = 100) -> list[Neuron]:
+    def find_neurons(self, *, query: str | None = None, type: str | None = None,
+                     min_importance: int | None = None, limit: int = 100) -> list[Neuron]:
         limit = max(1, min(limit, 1000))
         select_params: list[object] = []
         where_clauses: list[str] = []
@@ -229,6 +230,9 @@ class RealBrainStore:
         if type:
             where_clauses.append("type = ?")
             where_params.append(type)
+        if min_importance is not None:
+            where_clauses.append("importance >= ?")
+            where_params.append(min_importance)
         sql = f"SELECT payload, ({score_sql}) AS score FROM neurons"
         if where_clauses:
             sql += " WHERE " + " AND ".join(where_clauses)
