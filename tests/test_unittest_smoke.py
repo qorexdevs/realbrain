@@ -72,6 +72,11 @@ class RealBrainSmokeTests(unittest.TestCase):
             search = search_memory("useful events retrieval", ctx=ctx)
             self.assertTrue(search["success"])
 
+            # filters pass through to the store, not just type/limit
+            filtered = search_memory("useful events retrieval", {"min_importance": 999}, ctx=ctx)
+            self.assertTrue(filtered["success"])
+            self.assertEqual(filtered["result"]["neurons"], [])
+
             workspace = activate("RealBrain", ctx=ctx)
             self.assertTrue(workspace["success"])
 

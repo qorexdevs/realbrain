@@ -106,7 +106,14 @@ def reinforce_synapse(edge_id: str, reason: str, delta: float = 0.05, *, ctx: Re
 def search_memory(query: str, filters: dict[str, Any] | None = None, *, ctx: RealBrainToolContext = DEFAULT_CONTEXT) -> dict:
     filters = filters or {}
     store = ctx.store()
-    local_neurons = store.find_neurons(query=query, type=filters.get("type"), limit=int(filters.get("limit", 20)))
+    local_neurons = store.find_neurons(
+        query=query,
+        type=filters.get("type"),
+        min_importance=filters.get("min_importance"),
+        min_confidence=filters.get("min_confidence"),
+        state=filters.get("state"),
+        limit=int(filters.get("limit", 20)),
+    )
     external = ctx.gbrain().search(query, limit=int(filters.get("limit", 10)))
     return response(
         {
