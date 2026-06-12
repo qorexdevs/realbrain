@@ -100,6 +100,15 @@ def test_find_neurons_min_importance_filters():
         assert [n.id for n in found] == [big.id]
 
 
+def test_find_neurons_min_confidence_filters():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        store.add_neuron(Neuron(type="concept", title="hunch", confidence=0.3))
+        sure = store.add_neuron(Neuron(type="concept", title="solid fact", confidence=0.9))
+        found = store.find_neurons(min_confidence=0.7)
+        assert [n.id for n in found] == [sure.id]
+
+
 def test_find_neurons_state_filters():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")
