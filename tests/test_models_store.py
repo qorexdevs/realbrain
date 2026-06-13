@@ -50,6 +50,21 @@ def test_list_dream_runs_filters_and_orders():
         assert len(store.list_dream_runs()) == 3
 
 
+def test_list_synapses_filters_by_weight():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        n1 = store.add_neuron(Neuron(type="concept", title="A"))
+        n2 = store.add_neuron(Neuron(type="concept", title="B"))
+        n3 = store.add_neuron(Neuron(type="concept", title="C"))
+        strong = store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n2.id, relation_type="related_to", weight=0.8))
+        store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n3.id, relation_type="related_to", weight=0.3))
+        only_strong = store.list_synapses(min_weight=0.5)
+        assert [s.id for s in only_strong] == [strong.id]
+        # min_weight combines with the neuron_id filter
+        assert store.list_synapses(neuron_id=n3.id, min_weight=0.5) == []
+        assert len(store.list_synapses(neuron_id=n1.id)) == 2
+
+
 def test_list_beliefs_due_for_review():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")

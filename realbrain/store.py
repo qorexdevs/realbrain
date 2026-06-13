@@ -283,13 +283,20 @@ class RealBrainStore:
             row = conn.execute("SELECT payload FROM synapses WHERE id = ?", (synapse_id,)).fetchone()
         return self._load(Synapse, row)
 
-    def list_synapses(self, *, neuron_id: str | None = None, limit: int = 100) -> list[Synapse]:
+    def list_synapses(self, *, neuron_id: str | None = None, min_weight: float | None = None,
+                      limit: int = 100) -> list[Synapse]:
         limit = max(1, min(limit, 1000))
         params: list[object] = []
+        where_clauses: list[str] = []
         sql = "SELECT payload FROM synapses"
         if neuron_id:
-            sql += " WHERE source_neuron_id = ? OR target_neuron_id = ?"
+            where_clauses.append("(source_neuron_id = ? OR target_neuron_id = ?)")
             params.extend([neuron_id, neuron_id])
+        if min_weight is not None:
+            where_clauses.append("weight >= ?")
+            params.append(min_weight)
+        if where_clauses:
+            sql += " WHERE " + " AND ".join(where_clauses)
         sql += " ORDER BY weight DESC LIMIT ?"
         params.append(limit)
         with self.connect() as conn:
