@@ -79,6 +79,23 @@ def test_list_synapses_filters_by_relation_type():
         assert store.list_synapses(neuron_id=n3.id, relation_type="part_of") == []
 
 
+def test_list_synapses_filters_by_direction():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        n1 = store.add_neuron(Neuron(type="concept", title="A"))
+        n2 = store.add_neuron(Neuron(type="concept", title="B"))
+        out = store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n2.id, relation_type="related_to", weight=0.8))
+        inc = store.add_synapse(Synapse(source_neuron_id=n2.id, target_neuron_id=n1.id, relation_type="related_to", weight=0.6))
+        assert [s.id for s in store.list_synapses(neuron_id=n1.id, direction="out")] == [out.id]
+        assert [s.id for s in store.list_synapses(neuron_id=n1.id, direction="in")] == [inc.id]
+        assert len(store.list_synapses(neuron_id=n1.id)) == 2
+        try:
+            store.list_synapses(neuron_id=n1.id, direction="sideways")
+            raise AssertionError("expected value error")
+        except ValueError:
+            pass
+
+
 def test_list_beliefs_due_for_review():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")

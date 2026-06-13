@@ -284,14 +284,26 @@ class RealBrainStore:
         return self._load(Synapse, row)
 
     def list_synapses(self, *, neuron_id: str | None = None, min_weight: float | None = None,
-                      relation_type: str | None = None, limit: int = 100) -> list[Synapse]:
+                      relation_type: str | None = None, direction: str = "any",
+                      limit: int = 100) -> list[Synapse]:
+        if direction not in ("any", "out", "in"):
+            raise ValueError("direction must be 'any', 'out', or 'in'")
         limit = max(1, min(limit, 1000))
         params: list[object] = []
         where_clauses: list[str] = []
         sql = "SELECT payload FROM synapses"
         if neuron_id:
-            where_clauses.append("(source_neuron_id = ? OR target_neuron_id = ?)")
-            params.extend([neuron_id, neuron_id])
+            # direction is only meaningful relative to a neuron: 'out' keeps edges
+            # leaving it, 'in' keeps edges pointing at it, 'any' keeps both
+            if direction == "out":
+                where_clauses.append("source_neuron_id = ?")
+                params.append(neuron_id)
+            elif direction == "in":
+                where_clauses.append("target_neuron_id = ?")
+                params.append(neuron_id)
+            else:
+                where_clauses.append("(source_neuron_id = ? OR target_neuron_id = ?)")
+                params.extend([neuron_id, neuron_id])
         if min_weight is not None:
             where_clauses.append("weight >= ?")
             params.append(min_weight)
