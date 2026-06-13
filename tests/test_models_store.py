@@ -65,6 +65,20 @@ def test_list_synapses_filters_by_weight():
         assert len(store.list_synapses(neuron_id=n1.id)) == 2
 
 
+def test_list_synapses_filters_by_relation_type():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        n1 = store.add_neuron(Neuron(type="concept", title="A"))
+        n2 = store.add_neuron(Neuron(type="concept", title="B"))
+        n3 = store.add_neuron(Neuron(type="concept", title="C"))
+        part = store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n2.id, relation_type="part_of", weight=0.8))
+        store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n3.id, relation_type="related_to", weight=0.9))
+        only_part = store.list_synapses(relation_type="part_of")
+        assert [s.id for s in only_part] == [part.id]
+        # relation_type combines with the other filters
+        assert store.list_synapses(neuron_id=n3.id, relation_type="part_of") == []
+
+
 def test_list_beliefs_due_for_review():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")

@@ -284,7 +284,7 @@ class RealBrainStore:
         return self._load(Synapse, row)
 
     def list_synapses(self, *, neuron_id: str | None = None, min_weight: float | None = None,
-                      limit: int = 100) -> list[Synapse]:
+                      relation_type: str | None = None, limit: int = 100) -> list[Synapse]:
         limit = max(1, min(limit, 1000))
         params: list[object] = []
         where_clauses: list[str] = []
@@ -295,6 +295,9 @@ class RealBrainStore:
         if min_weight is not None:
             where_clauses.append("weight >= ?")
             params.append(min_weight)
+        if relation_type:
+            where_clauses.append("relation_type = ?")
+            params.append(relation_type)
         if where_clauses:
             sql += " WHERE " + " AND ".join(where_clauses)
         sql += " ORDER BY weight DESC LIMIT ?"
