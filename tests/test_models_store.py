@@ -107,6 +107,16 @@ def test_list_beliefs_due_for_review():
         assert [b.id for b in due] == [overdue.id, soon.id]
 
 
+def test_list_beliefs_min_confidence_filters():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        store.add_belief(Belief(claim_text="Shaky hunch.", confidence=0.2))
+        strong = store.add_belief(Belief(claim_text="Solid claim.", confidence=0.9))
+        kept = store.list_beliefs(min_confidence=0.5)
+        assert [b.id for b in kept] == [strong.id]
+        assert store.list_beliefs(min_confidence=0.95) == []
+
+
 def test_find_neurons_underscore_is_literal():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")
