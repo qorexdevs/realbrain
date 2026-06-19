@@ -117,6 +117,19 @@ def test_list_beliefs_min_confidence_filters():
         assert store.list_beliefs(min_confidence=0.95) == []
 
 
+def test_list_beliefs_max_confidence_filters():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        shaky = store.add_belief(Belief(claim_text="Shaky hunch.", confidence=0.2))
+        store.add_belief(Belief(claim_text="Solid claim.", confidence=0.9))
+        kept = store.list_beliefs(max_confidence=0.4)
+        assert [b.id for b in kept] == [shaky.id]
+        # combines with min_confidence to carve out a mid band
+        store.add_belief(Belief(claim_text="Middling.", confidence=0.55))
+        band = store.list_beliefs(min_confidence=0.5, max_confidence=0.6)
+        assert [b.claim_text for b in band] == ["Middling."]
+
+
 def test_find_neurons_underscore_is_literal():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")

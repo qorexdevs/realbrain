@@ -360,6 +360,7 @@ class RealBrainStore:
         owner_domain: str | None = None,
         due_before: datetime | None = None,
         min_confidence: float | None = None,
+        max_confidence: float | None = None,
         limit: int = 100,
     ) -> list[Belief]:
         limit = max(1, min(limit, 1000))
@@ -371,6 +372,10 @@ class RealBrainStore:
         if min_confidence is not None:
             clauses.append("confidence >= ?")
             params.append(min_confidence)
+        if max_confidence is not None:
+            # surface shaky beliefs worth revisiting, e.g. max_confidence=0.4
+            clauses.append("confidence <= ?")
+            params.append(max_confidence)
         if owner_domain:
             clauses.append("owner_domain = ?")
             params.append(owner_domain)
