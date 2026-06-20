@@ -57,9 +57,13 @@ def test_list_synapses_filters_by_weight():
         n2 = store.add_neuron(Neuron(type="concept", title="B"))
         n3 = store.add_neuron(Neuron(type="concept", title="C"))
         strong = store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n2.id, relation_type="related_to", weight=0.8))
-        store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n3.id, relation_type="related_to", weight=0.3))
+        mid = store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n3.id, relation_type="related_to", weight=0.3))
+        weak = store.add_synapse(Synapse(source_neuron_id=n2.id, target_neuron_id=n3.id, relation_type="related_to", weight=0.15))
         only_strong = store.list_synapses(min_weight=0.5)
         assert [s.id for s in only_strong] == [strong.id]
+        # max_weight surfaces weak edges; min and max can bracket a band
+        assert [s.id for s in store.list_synapses(max_weight=0.2)] == [weak.id]
+        assert [s.id for s in store.list_synapses(min_weight=0.2, max_weight=0.5)] == [mid.id]
         # min_weight combines with the neuron_id filter
         assert store.list_synapses(neuron_id=n3.id, min_weight=0.5) == []
         assert len(store.list_synapses(neuron_id=n1.id)) == 2
