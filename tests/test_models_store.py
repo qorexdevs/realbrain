@@ -69,6 +69,20 @@ def test_list_synapses_filters_by_weight():
         assert len(store.list_synapses(neuron_id=n1.id)) == 2
 
 
+def test_list_synapses_filters_by_min_confidence():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        n1 = store.add_neuron(Neuron(type="concept", title="A"))
+        n2 = store.add_neuron(Neuron(type="concept", title="B"))
+        n3 = store.add_neuron(Neuron(type="concept", title="C"))
+        sure = store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n2.id, relation_type="related_to", weight=0.4, confidence=0.9))
+        store.add_synapse(Synapse(source_neuron_id=n1.id, target_neuron_id=n3.id, relation_type="related_to", weight=0.8, confidence=0.3))
+        only_sure = store.list_synapses(min_confidence=0.7)
+        assert [s.id for s in only_sure] == [sure.id]
+        # confidence stacks with the weight filters, weight high but confidence low gets dropped
+        assert store.list_synapses(min_weight=0.7, min_confidence=0.7) == []
+
+
 def test_list_synapses_filters_by_relation_type():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")

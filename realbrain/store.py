@@ -284,7 +284,8 @@ class RealBrainStore:
         return self._load(Synapse, row)
 
     def list_synapses(self, *, neuron_id: str | None = None, min_weight: float | None = None,
-                      max_weight: float | None = None, relation_type: str | None = None,
+                      max_weight: float | None = None, min_confidence: float | None = None,
+                      relation_type: str | None = None,
                       direction: str = "any", limit: int = 100) -> list[Synapse]:
         if direction not in ("any", "out", "in"):
             raise ValueError("direction must be 'any', 'out', or 'in'")
@@ -311,6 +312,10 @@ class RealBrainStore:
             # surface weak edges worth pruning or revisiting, e.g. max_weight=0.2
             where_clauses.append("weight <= ?")
             params.append(max_weight)
+        if min_confidence is not None:
+            # keep only edges the brain is fairly sure about, e.g. min_confidence=0.7
+            where_clauses.append("confidence >= ?")
+            params.append(min_confidence)
         if relation_type:
             where_clauses.append("relation_type = ?")
             params.append(relation_type)
