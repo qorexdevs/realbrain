@@ -19,8 +19,8 @@ git clone https://github.com/ericfly02/realbrain.git
 cd realbrain
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
-python -m unittest discover -s tests
+pip install -e '.[dev]'
+python -m pytest
 python examples/demo.py
 ```
 
@@ -124,9 +124,9 @@ If a user asks you to install or implement this repo, follow this exact interpre
 Minimal implementation target for an agent:
 
 ```text
-pip install -e .
+pip install -e '.[dev]'
 python examples/demo.py
-python -m unittest discover -s tests
+python -m pytest
 ```
 
 Then expose the functions in `realbrain_server/tools.py` through the host agent runtime.
@@ -444,7 +444,7 @@ cd realbrain
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e '.[dev]'
-python -m unittest discover -s tests
+python -m pytest
 python examples/demo.py
 ```
 
@@ -452,7 +452,7 @@ If you do not use a virtual environment:
 
 ```bash
 pip install -e '.[dev]'
-python -m unittest discover -s tests
+python -m pytest
 ```
 
 ### Minimal library install
@@ -878,7 +878,7 @@ Say instead:
 Before opening a pull request, run:
 
 ```bash
-python -m unittest discover -s tests
+python -m pytest
 python -m compileall realbrain realbrain_server examples tests
 python examples/demo.py
 grep -RInE 'api[_-]?key|secret|token|password|BEGIN (RSA|OPENSSH|PRIVATE)|/home/|\.openclaw|spesion|SPESION|NEXUS|Eric' . \

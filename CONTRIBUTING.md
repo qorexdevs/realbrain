@@ -27,8 +27,8 @@ git clone https://github.com/ericfly02/realbrain.git
 cd realbrain
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
-python -m unittest discover -s tests
+pip install -e '.[dev]'
+python -m pytest
 python -m compileall realbrain realbrain_server examples tests
 python examples/demo.py
 ```
@@ -41,7 +41,7 @@ Quickstart smoke check tip:
 
 Before opening a PR:
 
-- [ ] Tests pass with `python -m unittest discover -s tests`.
+- [ ] Tests pass with `python -m pytest`.
 - [ ] Compile check passes with `python -m compileall realbrain realbrain_server examples tests`.
 - [ ] Demo runs with fake local data only.
 - [ ] No generated SQLite DBs, vault data, `.env` files, tokens, credentials, or private paths are committed.

@@ -13,7 +13,7 @@ What does this change?
 
 ## Checks
 
-- [ ] `python -m unittest discover -s tests`
+- [ ] `python -m pytest`
 - [ ] `python -m compileall realbrain realbrain_server examples tests`
 - [ ] `python examples/demo.py` if the demo path is affected
 - [ ] No secrets, private vault contents, generated DBs, `.env` files, or user-specific paths are committed

@@ -44,7 +44,7 @@ Do not start by scanning unrelated user vault data.
 ## Minimal implementation checklist
 
 - [ ] Install package locally: `pip install -e '.[dev]'`
-- [ ] Run tests: `python -m unittest discover -s tests`
+- [ ] Run tests: `python -m pytest`
 - [ ] Choose local vault path and SQLite path
 - [ ] Set `REALBRAIN_ROOT`
 - [ ] Set `REALBRAIN_DB`
@@ -312,7 +312,7 @@ Use environment variables or host config.
 ## Verification commands
 
 ```bash
-python -m unittest discover -s tests
+python -m pytest
 python examples/demo.py
 python -m compileall realbrain realbrain_server
 ```

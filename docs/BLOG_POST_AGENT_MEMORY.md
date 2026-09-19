@@ -119,8 +119,8 @@ git clone https://github.com/ericfly02/realbrain.git
 cd realbrain
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
-python -m unittest discover -s tests
+pip install -e '.[dev]'
+python -m pytest
 python examples/demo.py
 ```
 
