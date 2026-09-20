@@ -20,9 +20,15 @@ def _as_of() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def response(result: dict, *, warnings: list[str] | None = None, evidence_refs: list[str] | None = None) -> dict:
+def response(
+    result: dict,
+    *,
+    success: bool = True,
+    warnings: list[str] | None = None,
+    evidence_refs: list[str] | None = None,
+) -> dict:
     return {
-        "success": True,
+        "success": success,
         "source": "realbrain",
         "as_of": _as_of(),
         "result": result,
@@ -92,6 +98,7 @@ def add_synapse(candidate: dict[str, Any], *, ctx: RealBrainToolContext = DEFAUL
     except ValidationError as exc:
         return response(
             {"error": "invalid_synapse_candidate", "details": exc.errors()},
+            success=False,
             warnings=["Synapse was rejected by schema validation."],
         )
     saved = ctx.store().add_synapse(synapse)

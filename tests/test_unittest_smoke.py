@@ -9,7 +9,7 @@ from realbrain.global_workspace import GlobalWorkspace
 from realbrain.models import BrainEvent, Neuron, Synapse
 from realbrain.obsidian_adapter import ObsidianAdapter, ObsidianSafetyError
 from realbrain.store import RealBrainStore
-from realbrain_server.tools import RealBrainToolContext, activate, dream, extract_events, record_event, search_memory
+from realbrain_server.tools import RealBrainToolContext, activate, add_synapse, dream, extract_events, record_event, search_memory
 
 
 class RealBrainSmokeTests(unittest.TestCase):
@@ -83,6 +83,18 @@ class RealBrainSmokeTests(unittest.TestCase):
             dream_result = dream(mode="rem_generation", budget=3, focus_area="RealBrain", ctx=ctx)
             self.assertTrue(dream_result["success"])
             self.assertTrue(any("hypothesis" in warning.lower() for warning in dream_result["warnings"]))
+
+    def test_tool_layer_marks_rejected_synapse_as_unsuccessful(self):
+        result = add_synapse(
+            {
+                "source_neuron_id": "same",
+                "target_neuron_id": "same",
+                "relation_type": "related_to",
+            }
+        )
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["result"]["error"], "invalid_synapse_candidate")
 
     def test_demo_runs_in_temp_dir(self):
         demo = Path(__file__).resolve().parents[1] / "examples" / "demo.py"
