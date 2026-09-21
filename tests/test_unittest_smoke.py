@@ -9,7 +9,7 @@ from realbrain.global_workspace import GlobalWorkspace
 from realbrain.models import BrainEvent, Neuron, Synapse
 from realbrain.obsidian_adapter import ObsidianAdapter, ObsidianSafetyError
 from realbrain.store import RealBrainStore
-from realbrain_server.tools import RealBrainToolContext, activate, add_synapse, dream, extract_events, record_event, search_memory
+from realbrain_server.tools import RealBrainToolContext, activate, add_synapse, dream, extract_events, record_event, reinforce_synapse, search_memory
 
 
 class RealBrainSmokeTests(unittest.TestCase):
@@ -95,6 +95,16 @@ class RealBrainSmokeTests(unittest.TestCase):
 
         self.assertFalse(result["success"])
         self.assertEqual(result["result"]["error"], "invalid_synapse_candidate")
+
+    def test_tool_layer_marks_missing_synapse_reinforcement_as_unsuccessful(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "vault"
+            ctx = RealBrainToolContext(brain_root=root, db_path=root / "ops" / "brain" / "realbrain.sqlite")
+            result = reinforce_synapse("missing-edge", "test", ctx=ctx)
+
+        self.assertFalse(result["success"])
+        self.assertIsNone(result["result"]["synapse"])
+        self.assertEqual(result["warnings"], ["synapse not found"])
 
     def test_demo_runs_in_temp_dir(self):
         demo = Path(__file__).resolve().parents[1] / "examples" / "demo.py"

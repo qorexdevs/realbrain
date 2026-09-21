@@ -107,7 +107,11 @@ def add_synapse(candidate: dict[str, Any], *, ctx: RealBrainToolContext = DEFAUL
 
 def reinforce_synapse(edge_id: str, reason: str, delta: float = 0.05, *, ctx: RealBrainToolContext = DEFAULT_CONTEXT) -> dict:
     updated = ctx.store().reinforce_synapse(edge_id, delta=delta, reason=reason)
-    return response({"synapse": updated.model_dump(mode="json") if updated else None}, warnings=[] if updated else ["synapse not found"])
+    return response(
+        {"synapse": updated.model_dump(mode="json") if updated else None},
+        success=updated is not None,
+        warnings=[] if updated else ["synapse not found"],
+    )
 
 
 def search_memory(query: str, filters: dict[str, Any] | None = None, *, ctx: RealBrainToolContext = DEFAULT_CONTEXT) -> dict:
