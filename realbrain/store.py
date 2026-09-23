@@ -258,6 +258,13 @@ class RealBrainStore:
         return self.add_neuron(neuron)
 
     def add_synapse(self, synapse: Synapse) -> Synapse:
+        missing_endpoints = [
+            neuron_id
+            for neuron_id in (synapse.source_neuron_id, synapse.target_neuron_id)
+            if self.get_neuron(neuron_id) is None
+        ]
+        if missing_endpoints:
+            raise ValueError(f"synapse endpoints do not exist: {', '.join(missing_endpoints)}")
         with self.connect() as conn:
             conn.execute(
                 """

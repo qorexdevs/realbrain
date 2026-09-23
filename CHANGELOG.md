@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Direct store writes now reject synapses whose endpoints do not exist.
+
 ## 0.1.1
 
 First release that runs cleanly across the supported Python versions.

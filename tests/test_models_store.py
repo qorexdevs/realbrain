@@ -39,6 +39,28 @@ def test_store_persists_core_records():
         assert store.get_dream_run(dream.id).mode == "rem_generation"
 
 
+def test_store_rejects_synapse_when_either_endpoint_is_unknown():
+    with tempfile.TemporaryDirectory() as tmp:
+        store = RealBrainStore(Path(tmp) / "brain.sqlite")
+        existing = store.add_neuron(Neuron(type="concept", title="Existing"))
+        for source_id, target_id, missing_id in (
+            (existing.id, "missing-target", "missing-target"),
+            ("missing-source", existing.id, "missing-source"),
+        ):
+            try:
+                store.add_synapse(
+                    Synapse(
+                        source_neuron_id=source_id,
+                        target_neuron_id=target_id,
+                        relation_type="related_to",
+                    )
+                )
+                raise AssertionError("expected unknown endpoint error")
+            except ValueError as exc:
+                assert missing_id in str(exc)
+        assert store.list_synapses() == []
+
+
 def test_list_dream_runs_filters_and_orders():
     with tempfile.TemporaryDirectory() as tmp:
         store = RealBrainStore(Path(tmp) / "brain.sqlite")
