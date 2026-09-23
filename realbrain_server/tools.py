@@ -101,7 +101,19 @@ def add_synapse(candidate: dict[str, Any], *, ctx: RealBrainToolContext = DEFAUL
             success=False,
             warnings=["Synapse was rejected by schema validation."],
         )
-    saved = ctx.store().add_synapse(synapse)
+    store = ctx.store()
+    missing_endpoints = [
+        neuron_id
+        for neuron_id in (synapse.source_neuron_id, synapse.target_neuron_id)
+        if store.get_neuron(neuron_id) is None
+    ]
+    if missing_endpoints:
+        return response(
+            {"error": "unknown_synapse_endpoint", "missing_endpoints": missing_endpoints},
+            success=False,
+            warnings=["Synapse was rejected because an endpoint does not exist."],
+        )
+    saved = store.add_synapse(synapse)
     return response({"synapse": saved.model_dump(mode="json"), "db_path": str(ctx.db_path)}, evidence_refs=saved.evidence_refs)
 
 

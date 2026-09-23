@@ -96,6 +96,23 @@ class RealBrainSmokeTests(unittest.TestCase):
         self.assertFalse(result["success"])
         self.assertEqual(result["result"]["error"], "invalid_synapse_candidate")
 
+    def test_tool_layer_rejects_synapse_with_missing_endpoints(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "vault"
+            ctx = RealBrainToolContext(brain_root=root, db_path=root / "ops" / "brain" / "realbrain.sqlite")
+            result = add_synapse(
+                {
+                    "source_neuron_id": "missing-source",
+                    "target_neuron_id": "missing-target",
+                    "relation_type": "related_to",
+                },
+                ctx=ctx,
+            )
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["result"]["error"], "unknown_synapse_endpoint")
+        self.assertEqual(result["result"]["missing_endpoints"], ["missing-source", "missing-target"])
+
     def test_tool_layer_marks_missing_synapse_reinforcement_as_unsuccessful(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "vault"
